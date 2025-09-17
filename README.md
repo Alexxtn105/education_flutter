@@ -10,6 +10,13 @@ flutter pub get
 flutter run
 ```
 
+Запуск dev-сервера
 ```bash
 flutter run -d web-server --web-port=8085
+```
+
+
+Билд релизной версии
+```bash
+flutter build web --release
 ```
