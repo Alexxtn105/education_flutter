@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../models/user.dart';
 import 'questionnaire_selection.dart';
+import 'results_history_screen.dart';
+import '../theme_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -15,8 +17,35 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      appBar: AppBar(title: Text('Вход в систему тестирования')),
+      appBar: AppBar(
+        title: Text('Вход в систему тестирования'),
+        actions: [
+          // Кнопка перехода к истории результатов
+          IconButton(
+            icon: Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ResultsHistoryScreen(),
+                ),
+              );
+            },
+            tooltip: 'История результатов',
+          ),
+          // Кнопка смены темы
+          IconButton(
+            icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+            tooltip: themeProvider.isDarkMode ? 'Светлая тема' : 'Темная тема',
+          ),
+        ],
+      ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Form(
@@ -69,6 +98,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Text('Продолжить'),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                ),
+              ),
+              SizedBox(height: 20),
+              // Дополнительная кнопка для перехода к истории результатов
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ResultsHistoryScreen(),
+                    ),
+                  );
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.history, size: 20),
+                    SizedBox(width: 8),
+                    Text('История результатов'),
+                  ],
                 ),
               ),
             ],

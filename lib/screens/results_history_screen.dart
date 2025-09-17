@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../models/test_result.dart';
+import '../theme_provider.dart';
 
 class ResultsHistoryScreen extends StatefulWidget {
   @override
@@ -89,6 +91,8 @@ class _ResultsHistoryScreenState extends State<ResultsHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('История результатов'),
@@ -99,6 +103,13 @@ class _ResultsHistoryScreenState extends State<ResultsHistoryScreen> {
               context: context,
               builder: (context) => _buildFilterDialog(),
             ),
+          ),
+          IconButton(
+            icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+            tooltip: themeProvider.isDarkMode ? 'Светлая тема' : 'Темная тема',
           ),
         ],
       ),
