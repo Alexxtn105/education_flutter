@@ -23,26 +23,73 @@ class _ResultsHistoryScreenState extends State<ResultsHistoryScreen> {
     _loadResults();
   }
 
+  // Future<void> _loadResults() async {
+  //   try {
+  //     var results = await _apiService.getResults(
+  //       userName: _filterUserName.isNotEmpty ? _filterUserName : null,
+  //       department: _filterDepartment.isNotEmpty ? _filterDepartment : null,
+  //       questionnaire: _filterQuestionnaire.isNotEmpty ? _filterQuestionnaire : null,
+  //     );
+  //
+  //     setState(() {
+  //       _results = results;
+  //       _isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Ошибка загрузки результатов: $e')),
+  //     );
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
   Future<void> _loadResults() async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
+
       var results = await _apiService.getResults(
         userName: _filterUserName.isNotEmpty ? _filterUserName : null,
         department: _filterDepartment.isNotEmpty ? _filterDepartment : null,
-        questionnaire: _filterQuestionnaire.isNotEmpty ? _filterQuestionnaire : null,
+        questionnaire: _filterQuestionnaire.isNotEmpty
+            ? _filterQuestionnaire
+            : null,
       );
 
+      // Обработка различных сценариев
+      if (results.isEmpty) {
+        // API вернул пустой список
+        _showNoResultsMessage('Результаты не найдены по заданным фильтрам');
+      } else {
+        // Есть результаты
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      }
+
       setState(() {
-        _results = results;
+        _results = results ?? [];
         _isLoading = false;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки результатов: $e')),
+        SnackBar(content: Text('Ошибка загрузки результатов: ${e.toString()}')),
       );
       setState(() {
         _isLoading = false;
+        _results = [];
       });
     }
+  }
+
+  void _showNoResultsMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 3),
+        backgroundColor: Colors.blue, // Информационный цвет
+      ),
+    );
   }
 
   Widget _buildFilterDialog() {
@@ -105,7 +152,9 @@ class _ResultsHistoryScreenState extends State<ResultsHistoryScreen> {
             ),
           ),
           IconButton(
-            icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            ),
             onPressed: () {
               themeProvider.toggleTheme();
             },
@@ -118,33 +167,37 @@ class _ResultsHistoryScreenState extends State<ResultsHistoryScreen> {
           : _results.isEmpty
           ? Center(child: Text('Нет результатов для отображения'))
           : ListView.builder(
-        itemCount: _results.length,
-        itemBuilder: (context, index) {
-          final result = _results[index];
-          return Card(
-            margin: EdgeInsets.all(8.0),
-            child: ListTile(
-              title: Text(result.userName),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${result.department} - ${result.questionnaire}'),
-                  Text('Результат: ${result.scoreText}'),
-                  Text('Дата: ${result.formattedDate}'),
-                  Text('Длительность: ${result.durationText}'),
-                ],
-              ),
-              trailing: Icon(
-                result.scorePercentage >= 70 ? Icons.check_circle : Icons.error,
-                color: result.scorePercentage >= 70 ? Colors.green : Colors.red,
-              ),
-              onTap: () {
-                // Детальная информация о результате
+              itemCount: _results.length,
+              itemBuilder: (context, index) {
+                final result = _results[index];
+                return Card(
+                  margin: EdgeInsets.all(8.0),
+                  child: ListTile(
+                    title: Text(result.userName),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${result.department} - ${result.questionnaire}'),
+                        Text('Результат: ${result.scoreText}'),
+                        Text('Дата: ${result.formattedDate}'),
+                        Text('Длительность: ${result.durationText}'),
+                      ],
+                    ),
+                    trailing: Icon(
+                      result.scorePercentage >= 70
+                          ? Icons.check_circle
+                          : Icons.error,
+                      color: result.scorePercentage >= 70
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                    onTap: () {
+                      // Детальная информация о результате
+                    },
+                  ),
+                );
               },
             ),
-          );
-        },
-      ),
     );
   }
 }
