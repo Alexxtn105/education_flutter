@@ -12,7 +12,7 @@ flutter run
 
 Запуск dev-сервера
 ```bash
-flutter run -d web-server --web-port=8085
+flutter run -d web-server --web-port=8086
 ```
 
 

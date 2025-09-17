@@ -59,24 +59,25 @@ class _QuizScreenState extends State<QuizScreen> {
     try {
       var response = await _apiService.submitAnswer(widget.sessionId, answerIndex);
 
-      if (response['completed']) {
+      if (response.completed) {
         // Тест завершен
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => ResultsScreen(
-              correctAnswers: _correctAnswers + (response['correct'] ? 1 : 0),
+              correctAnswers: _correctAnswers + (response.correct ? 1 : 0),
               totalQuestions: widget.totalQuestions,
-              user: widget.user, // Передаем пользователя
-              questionnaire: widget.questionnaire, // Передаем название теста
-              startedAt: widget.startedAt, // Передаем время начала
+              user: widget.user,
+              questionnaire: widget.questionnaire,
+              startedAt: widget.startedAt,
+              incorrectAnswers: response.incorrectAnswers, // Передаем неправильные ответы
             ),
           ),
         );
       } else {
         setState(() {
-          _correctAnswers = response['correct'] ? _correctAnswers + 1 : _correctAnswers;
-          _wrongAnswers = response['correct'] ? _wrongAnswers : _wrongAnswers + 1;
+          _correctAnswers = response.correct ? _correctAnswers + 1 : _correctAnswers;
+          _wrongAnswers = response.correct ? _wrongAnswers : _wrongAnswers + 1;
         });
         _loadNextQuestion();
       }
@@ -86,6 +87,37 @@ class _QuizScreenState extends State<QuizScreen> {
       );
     }
   }
+  // Future<void> _submitAnswer(int answerIndex) async {
+  //   try {
+  //     var response = await _apiService.submitAnswer(widget.sessionId, answerIndex);
+  //
+  //     if (response['completed']) {
+  //       // Тест завершен
+  //       Navigator.pushReplacement(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => ResultsScreen(
+  //             correctAnswers: _correctAnswers + (response['correct'] ? 1 : 0),
+  //             totalQuestions: widget.totalQuestions,
+  //             user: widget.user, // Передаем пользователя
+  //             questionnaire: widget.questionnaire, // Передаем название теста
+  //             startedAt: widget.startedAt, // Передаем время начала
+  //           ),
+  //         ),
+  //       );
+  //     } else {
+  //       setState(() {
+  //         _correctAnswers = response['correct'] ? _correctAnswers + 1 : _correctAnswers;
+  //         _wrongAnswers = response['correct'] ? _wrongAnswers : _wrongAnswers + 1;
+  //       });
+  //       _loadNextQuestion();
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Ошибка отправки ответа: $e')),
+  //     );
+  //   }
+  // }
 
   Future<void> _showHint() async {
     try {

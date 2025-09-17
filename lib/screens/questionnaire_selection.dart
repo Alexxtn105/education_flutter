@@ -27,6 +27,7 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
   Future<void> _loadQuestionnaires() async {
     try {
       var questionnaires = await _apiService.getQuestionnaires();
+      questionnaires.sort(); // Сортируем по алфавиту
       setState(() {
         _questionnaires = questionnaires;
         _isLoading = false;

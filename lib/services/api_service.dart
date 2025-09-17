@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../models.dart';
 import '../models/questionnare.dart';
 import '../models/user.dart';
 import '../models/test_result.dart';
@@ -47,7 +48,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> submitAnswer(String sessionId, int answer) async {
+  Future<AnswerResponse> submitAnswer(String sessionId, int answer) async {
     final response = await http.post(
       Uri.parse('$baseUrl/answer'),
       headers: {'Content-Type': 'application/json'},
@@ -58,11 +59,27 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      return AnswerResponse.fromJson(json.decode(response.body));
     } else {
       throw Exception('Failed to submit answer');
     }
   }
+  // Future<Map<String, dynamic>> submitAnswer(String sessionId, int answer) async {
+  //   final response = await http.post(
+  //     Uri.parse('$baseUrl/answer'),
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: json.encode({
+  //       'session_id': sessionId,
+  //       'answer': answer,
+  //     }),
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     return json.decode(response.body);
+  //   } else {
+  //     throw Exception('Failed to submit answer');
+  //   }
+  // }
 
   Future<int> getHint(String sessionId) async {
     try {

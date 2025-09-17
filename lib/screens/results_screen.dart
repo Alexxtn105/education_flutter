@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models.dart';
 import '../models/user.dart';
 import 'results_history_screen.dart';
 
@@ -8,6 +9,7 @@ class ResultsScreen extends StatelessWidget {
   final User user;
   final String questionnaire;
   final DateTime startedAt;
+  final List<IncorrectAnswer> incorrectAnswers; // Добавляем неправильные ответы
 
   ResultsScreen({
     required this.correctAnswers,
@@ -15,6 +17,7 @@ class ResultsScreen extends StatelessWidget {
     required this.user,
     required this.questionnaire,
     required this.startedAt,
+    this.incorrectAnswers = const [], // По умолчанию пустой список
   });
 
   double get score => (correctAnswers / totalQuestions) * 100;
@@ -29,7 +32,7 @@ class ResultsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Информация о пользователе
+            // Информация о пользователе (без изменений)
             Card(
               child: Padding(
                 padding: EdgeInsets.all(16.0),
@@ -51,7 +54,7 @@ class ResultsScreen extends StatelessWidget {
 
             SizedBox(height: 30),
 
-            // Результаты
+            // Результаты (без изменений)
             Center(
               child: Column(
                 children: [
@@ -90,15 +93,104 @@ class ResultsScreen extends StatelessWidget {
               ),
             ),
 
+            // Заменим Expanded на ExpansionTile для лучшего UX
+            // if (incorrectAnswers.isNotEmpty) ...[
+            //   SizedBox(height: 30),
+            //   ExpansionTile(
+            //     title: Text(
+            //       'Неправильные ответы (${incorrectAnswers.length})',
+            //       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            //     ),
+            //     children: [
+            //       ListView.builder(
+            //         shrinkWrap: true,
+            //         physics: NeverScrollableScrollPhysics(),
+            //         itemCount: incorrectAnswers.length,
+            //         itemBuilder: (context, index) {
+            //           final answer = incorrectAnswers[index];
+            //           return Card(
+            //             color: Colors.red[50],
+            //             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            //             child: Padding(
+            //               padding: EdgeInsets.all(12.0),
+            //               child: Column(
+            //                 crossAxisAlignment: CrossAxisAlignment.start,
+            //                 children: [
+            //                   Text(
+            //                     'Вопрос ${answer.questionIndex + 1}:',
+            //                     style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+            //                   ),
+            //                   SizedBox(height: 5),
+            //                   Text(
+            //                     answer.question,
+            //                     style: TextStyle(fontWeight: FontWeight.w500),
+            //                   ),
+            //                   SizedBox(height: 8),
+            //                   Text('❌ Ваш ответ: ${answer.userAnswer}'),
+            //                   Text('✅ Правильный ответ: ${answer.correctAnswer}'),
+            //                 ],
+            //               ),
+            //             ),
+            //           );
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // ],
+            // Новый раздел: Неправильные ответы
+            if (incorrectAnswers.isNotEmpty) ...[
+              SizedBox(height: 30),
+              Text(
+                'Неправильные ответы:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10), //10
+              Expanded(
+
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: incorrectAnswers.length,
+                  itemBuilder: (context, index) {
+                    final answer = incorrectAnswers[index];
+                    return Card(
+                      color: Colors.red[50],
+                      margin: EdgeInsets.symmetric(vertical: 5),
+                      child: Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Вопрос ${answer.questionIndex + 1}: ${answer.question}',
+                              style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(200, 0, 0, 0)),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                                '❌ Ваш ответ: ${answer.userAnswer}',
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(200, 0, 0, 0)),
+                             ),
+                            Text(
+                                '✅ Правильный ответ: ${answer.correctAnswer}',
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(200, 0, 0, 0)),
+
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+
             Spacer(),
 
-            // Кнопки
+            // Кнопки (без изменений)
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Возврат к выбору тестов
                       Navigator.popUntil(context, (route) => route.isFirst);
                     },
                     child: Text('Завершить'),
@@ -111,7 +203,6 @@ class ResultsScreen extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Просмотр истории результатов
                       Navigator.push(
                         context,
                         MaterialPageRoute(
