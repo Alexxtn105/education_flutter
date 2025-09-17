@@ -140,4 +140,28 @@ class ApiService {
       throw Exception('Failed to get statistics');
     }
   }
+
+  // Новый метод для принудительной перезагрузки вопросников
+  Future<void> reloadQuestionnaires() async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/reload-questionnaires'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to reload questionnaires: ${response.statusCode}');
+    }
+  }
+
+  // Новый метод для получения информации о вопросниках
+  Future<List<Map<String, dynamic>>> getQuestionnairesInfo() async {
+    final response = await http.get(Uri.parse('$baseUrl/questionnaires-info'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data.map((item) => item as Map<String, dynamic>).toList();
+    } else {
+      throw Exception('Failed to load questionnaires info');
+    }
+  }
 }
