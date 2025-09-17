@@ -43,7 +43,7 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Выбор вопросника')),
+      appBar: AppBar(title: Text('Выбор вопросника - ${widget.user.name}')),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
@@ -56,6 +56,7 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
                 _questionnaires[index],
                 style: TextStyle(fontSize: 18),
               ),
+              subtitle: Text('Нажмите чтобы начать тестирование'),
               onTap: () async {
                 try {
                   var response = await _apiService.startTest(
@@ -69,6 +70,9 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
                       builder: (context) => QuizScreen(
                         sessionId: response['session_id'],
                         totalQuestions: response['total_questions'],
+                        user: widget.user, // Передаем пользователя
+                        questionnaire: _questionnaires[index], // Передаем название теста
+                        startedAt: DateTime.now(), // Передаем время начала
                       ),
                     ),
                   );

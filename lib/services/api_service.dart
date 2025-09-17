@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/questionnare.dart';
 import '../models/user.dart';
+import '../models/test_result.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:8084/api';
@@ -84,38 +85,6 @@ class ApiService {
       print('Hint exception: $e');
       throw Exception('Failed to get hint: $e');
     }
-   //--------------------------------------------
-    // try {
-    //   final response = await http.get(
-    //     Uri.parse('$baseUrl/api/hint?session_id=$sessionId'),
-    //   );
-    //
-    //   if (response.statusCode == 200) {
-    //     final data = json.decode(response.body);
-    //     print('Hint response: $data'); // Отладочная информация
-    //     return data['correct_answer'];
-    //   } else {
-    //     print('Hint error: ${response.statusCode} ${response.body}');
-    //     throw Exception('Failed to get hint: ${response.statusCode}');
-    //   }
-    // } catch (e) {
-    //   print('Hint exception: $e');
-    //   throw Exception('Failed to get hint: $e');
-    // }
-
-
-    //---------------------------------------
-
-    // final response = await http.get(
-    //   Uri.parse('$baseUrl/hint?session_id=$sessionId'),
-    // );
-    //
-    // if (response.statusCode == 200) {
-    //   var data = json.decode(response.body);
-    //   return data['correct_answer'];
-    // } else {
-    //   throw Exception('Failed to get hint');
-    // }
   }
 
   Future<Map<String, dynamic>> getStats(String sessionId) async {
@@ -130,16 +99,45 @@ class ApiService {
     }
   }
 
-  // Новый метод для загрузки полной информации о вопроснике
-  Future<Questionnaire> getQuestionnaireDetails(String name) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/questionnaire/$name'),
+  // Новый метод для получения результатов с фильтрацией
+  Future<List<TestResult>> getResults({
+    String? userName,
+    String? department,
+    String? questionnaire,
+    String? dateFrom,
+    String? dateTo,
+  }) async {
+    final Map<String, dynamic> filter = {};
+    if (userName != null) filter['user_name'] = userName;
+    if (department != null) filter['department'] = department;
+    if (questionnaire != null) filter['questionnaire'] = questionnaire;
+    if (dateFrom != null) filter['date_from'] = dateFrom;
+    if (dateTo != null) filter['date_to'] = dateTo;
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/results'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(filter),
     );
 
     if (response.statusCode == 200) {
-      return Questionnaire.fromJson(json.decode(response.body));
+      List<dynamic> data = json.decode(response.body);
+      return data.map((item) => TestResult.fromJson(item)).toList();
     } else {
-      throw Exception('Failed to load questionnaire details');
+      throw Exception('Failed to load results');
+    }
+  }
+
+  // Новый метод для получения статистики
+  Future<Map<String, dynamic>> getStatistics() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/statistics'),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to get statistics');
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:education/screens/results_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 
@@ -15,6 +16,9 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: LoginScreen(),
+      routes: {
+        '/results-history': (context) => ResultsHistoryScreen(),
+      },
     );
   }
 }

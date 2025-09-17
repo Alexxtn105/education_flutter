@@ -2,12 +2,22 @@ import 'package:education/screens/results_screen.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/question.dart';
+import '../models/user.dart';
 
 class QuizScreen extends StatefulWidget {
   final String sessionId;
   final int totalQuestions;
+  final User user; // Добавляем пользователя
+  final String questionnaire; // Добавляем название вопросника
+  final DateTime startedAt; // Добавляем время начала
 
-  QuizScreen({required this.sessionId, required this.totalQuestions});
+  QuizScreen({
+    required this.sessionId,
+    required this.totalQuestions,
+    required this.user,
+    required this.questionnaire,
+    required this.startedAt,
+  });
 
   @override
   _QuizScreenState createState() => _QuizScreenState();
@@ -57,6 +67,9 @@ class _QuizScreenState extends State<QuizScreen> {
             builder: (context) => ResultsScreen(
               correctAnswers: _correctAnswers + (response['correct'] ? 1 : 0),
               totalQuestions: widget.totalQuestions,
+              user: widget.user, // Передаем пользователя
+              questionnaire: widget.questionnaire, // Передаем название теста
+              startedAt: widget.startedAt, // Передаем время начала
             ),
           ),
         );
@@ -75,32 +88,6 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<void> _showHint() async {
-
-    // try {
-    //   int correctAnswer = await _apiService.getHint(widget.sessionId);
-    //
-    //   String correctAnswerText = '';
-    //   if (_currentQuestion != null && correctAnswer >= 0 && correctAnswer < _currentQuestion!.options.length) {
-    //     correctAnswerText = _currentQuestion!.options[correctAnswer].text;
-    //   }
-    //
-    //   _showHintDialog(correctAnswer, correctAnswerText);
-    //
-    // } catch (e) {
-    //   print('Hint error, using fallback: $e');
-    //
-    //   // Fallback: используем локальные данные если бэкенд недоступен
-    //   if (_currentQuestion != null) {
-    //     for (int i = 0; i < _currentQuestion!.options.length; i++) {
-    //       // В реальном приложении здесь должна быть логика определения правильного ответа
-    //       // Для теста используем первый вариант
-    //       _showHintDialog(0, _currentQuestion!.options[0].text);
-    //       break;
-    //     }
-    //   }
-    // }
-
-    //---------------------------------------------
     try {
       int correctAnswer = await _apiService.getHint(widget.sessionId);
 
@@ -136,56 +123,7 @@ class _QuizScreenState extends State<QuizScreen> {
         SnackBar(content: Text('Ошибка получения подсказки: $e')),
       );
     }
-
-
-    //-----------------------------------------------
-
-    // try {
-    //   int correctAnswer = await _apiService.getHint(widget.sessionId);
-    //   showDialog(
-    //     context: context,
-    //     builder: (context) => AlertDialog(
-    //       title: Text('Подсказка'),
-    //       content: Text('Правильный ответ: ${correctAnswer + 1}'),
-    //       actions: [
-    //         TextButton(
-    //           onPressed: () => Navigator.pop(context),
-    //           child: Text('OK'),
-    //         ),
-    //       ],
-    //     ),
-    //   );
-    // } catch (e) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text('Ошибка получения подсказки: $e')),
-    //   );
-    // }
-
   }
-
-  // void _showHintDialog(int correctAnswer, String correctAnswerText) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: Text('Подсказка'),
-  //       content: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text('Правильный ответ: ${correctAnswer + 1}'),
-  //           SizedBox(height: 10),
-  //           Text('$correctAnswerText', style: TextStyle(fontWeight: FontWeight.bold)),
-  //         ],
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: Text('OK'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +136,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Тестирование'),
+        title: Text('Тестирование - ${widget.questionnaire}'),
         actions: [
           IconButton(
             icon: Icon(Icons.help),
@@ -211,6 +149,29 @@ class _QuizScreenState extends State<QuizScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Информация о пользователе
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      child: Text(widget.user.name[0]),
+                    ),
+                    SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(widget.user.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(widget.user.department, style: TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+
             // Прогресс
             LinearProgressIndicator(
               value: _currentQuestionIndex / widget.totalQuestions,
