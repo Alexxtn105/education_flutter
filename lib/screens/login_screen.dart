@@ -1,3 +1,5 @@
+import 'package:education/screens/settings_screen.dart';
+import 'package:education/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
@@ -6,7 +8,9 @@ import 'results_history_screen.dart';
 import '../theme_provider.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final ApiService apiService;
+
+  const LoginScreen({super.key, required this.apiService});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -25,15 +29,39 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: Text('Вход в систему тестирования'),
         actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsScreen(
+                    apiService: widget.apiService,
+                    onSettingsChanged: () {
+                      // При изменении настроек можно обновить состояние
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
           // Кнопка перехода к истории результатов
           IconButton(
             icon: Icon(Icons.history),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => ResultsHistoryScreen(),
-                ),
+                  MaterialPageRoute(
+                    builder: (context) => SettingsScreen(
+                      apiService: widget.apiService,
+                      onSettingsChanged: () {
+                        // При изменении настроек можно обновить состояние
+                      },
+                    ),
+                  ),
+                // MaterialPageRoute(
+                //   builder: (context) => ResultsHistoryScreen(),
+                // ),
               );
             },
             tooltip: 'История результатов',

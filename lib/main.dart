@@ -1,7 +1,10 @@
 import 'package:education/screens/incorrect_answers_screen.dart';
 import 'package:education/screens/results_history_screen.dart';
+import 'package:education/screens/settings_screen.dart';
+import 'package:education/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'config.dart';
 import 'screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import 'theme_provider.dart';
@@ -9,9 +12,16 @@ import 'theme_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-// Проверяем доступность сервера
+  // Инициализируем конфигурацию
+  await AppConfig.initialize();
+
+  // Проверяем доступность сервера
   try {
-    final response = await http.get(Uri.parse('http://localhost:8084/api/test'))
+    print('!!!!!!!!!!!!!!!!!!');
+    print(AppConfig.baseUrl);
+
+    final response = await http
+        .get(Uri.parse('${AppConfig.baseUrl}/test'))
         .timeout(Duration(seconds: 5));
     if (response.statusCode == 200) {
       print('Server is reachable');
@@ -24,7 +34,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ApiService apiService = ApiService();
+  //const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +46,18 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Quiz App',
             theme: themeProvider.themeData,
-            home: LoginScreen(),
+            //home: LoginScreen(),
+            home: LoginScreen(apiService: apiService), // Передаем apiService
             routes: {
               '/results-history': (context) => ResultsHistoryScreen(),
-              '/incorrect-answers': (context) => IncorrectAnswersScreen(incorrectAnswers: []), // Базовый вариант
+              '/incorrect-answers': (context) =>
+                  IncorrectAnswersScreen(incorrectAnswers: []),
+              '/settings': (context) => SettingsScreen(
+                apiService: apiService,
+                onSettingsChanged: () {
+                  // Обновляем состояние при изменении настроек
+                },
+              ),
             },
           );
         },

@@ -2,15 +2,28 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import '../config.dart';
 import '../models/answers.dart';
 import '../models/user.dart';
 import '../models/test_result.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:8084/api';
+  static String _baseUrl = 'http://localhost:8087/api';
+
+  // Геттер для текущего URL
+  String get baseUrl => _baseUrl;
+
+  // Метод для изменения baseUrl
+  void setBaseUrl(String newUrl) {
+    if (AppConfig.isValidUrl(newUrl)) {
+      _baseUrl = newUrl;
+    } else {
+      throw Exception('Invalid URL format');
+    }
+  }
 
   Future<List<String>> getQuestionnaires() async {
-    final response = await http.get(Uri.parse('$baseUrl/questionnaires'));
+    final response = await http.get(Uri.parse('$_baseUrl/questionnaires'));
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       return data.map((item) => item.toString()).toList();
@@ -30,7 +43,7 @@ class ApiService {
       );
       final response = await http
           .post(
-            Uri.parse('$baseUrl/start-test'),
+            Uri.parse('$_baseUrl/start-test'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode({
               'user_name': user.name,
@@ -72,7 +85,7 @@ class ApiService {
   //   String questionnaireFullName,
   // ) async {
   //   final response = await http.post(
-  //     Uri.parse('$baseUrl/start-test'),
+  //     Uri.parse('$_baseUrl/start-test'),
   //     headers: {'Content-Type': 'application/json'},
   //     body: json.encode({
   //       'user_name': user.name,
@@ -90,7 +103,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> getNextQuestion(String sessionId) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/next-question?session_id=$sessionId'),
+      Uri.parse('$_baseUrl/next-question?session_id=$sessionId'),
     );
 
     if (response.statusCode == 200) {
@@ -102,7 +115,7 @@ class ApiService {
 
   Future<AnswerResponse> submitAnswer(String sessionId, int answer) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/answer'),
+      Uri.parse('$_baseUrl/answer'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'session_id': sessionId, 'answer': answer}),
     );
@@ -116,7 +129,7 @@ class ApiService {
 
   // Future<Map<String, dynamic>> submitAnswer(String sessionId, int answer) async {
   //   final response = await http.post(
-  //     Uri.parse('$baseUrl/answer'),
+  //     Uri.parse('$_baseUrl/answer'),
   //     headers: {'Content-Type': 'application/json'},
   //     body: json.encode({
   //       'session_id': sessionId,
@@ -136,7 +149,7 @@ class ApiService {
       print('Getting hint for session: $sessionId');
 
       final response = await http.get(
-        Uri.parse('$baseUrl/hint?session_id=$sessionId'),
+        Uri.parse('$_baseUrl/hint?session_id=$sessionId'),
       );
 
       print('Hint response status: ${response.statusCode}');
@@ -158,7 +171,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> getStats(String sessionId) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/stats?session_id=$sessionId'),
+      Uri.parse('$_baseUrl/stats?session_id=$sessionId'),
     );
 
     if (response.statusCode == 200) {
@@ -184,7 +197,7 @@ class ApiService {
     if (dateTo != null) filter['date_to'] = dateTo;
 
     final response = await http.post(
-      Uri.parse('$baseUrl/results'),
+      Uri.parse('$_baseUrl/results'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(filter),
     );
@@ -199,7 +212,7 @@ class ApiService {
 
   // Новый метод для получения статистики
   Future<Map<String, dynamic>> getStatistics() async {
-    final response = await http.get(Uri.parse('$baseUrl/statistics'));
+    final response = await http.get(Uri.parse('$_baseUrl/statistics'));
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -211,7 +224,7 @@ class ApiService {
   // Новый метод для принудительной перезагрузки вопросников
   Future<void> reloadQuestionnaires() async {
     final response = await http.post(
-      Uri.parse('$baseUrl/reload-questionnaires'),
+      Uri.parse('$_baseUrl/reload-questionnaires'),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -224,7 +237,7 @@ class ApiService {
 
   // Новый метод для получения информации о вопросниках
   Future<List<Map<String, dynamic>>> getQuestionnairesInfo() async {
-    final response = await http.get(Uri.parse('$baseUrl/questionnaires-info'));
+    final response = await http.get(Uri.parse('$_baseUrl/questionnaires-info'));
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
@@ -236,11 +249,12 @@ class ApiService {
 
   Future<Map<String, List<Map<String, dynamic>>>>
   getGroupedQuestionnaires() async {
-    print('Requesting: $baseUrl/grouped-questionnaires');
+
+    print('Requesting: $_baseUrl/grouped-questionnaires');
     try {
       final response = await http
           .get(
-            Uri.parse('$baseUrl/grouped-questionnaires'),
+            Uri.parse('$_baseUrl/grouped-questionnaires'),
             headers: {'Content-Type': 'application/json'},
           )
           .timeout(Duration(seconds: 10));
@@ -279,4 +293,28 @@ class ApiService {
       throw Exception('Failed to load grouped questionnaires: $e');
     }
   }
+
+  Future<Map<String, dynamic>> _handleRequest(Future<http.Response> request) async {
+    try {
+      final response = await request.timeout(Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return json.decode(utf8.decode(response.bodyBytes));
+      } else if (response.statusCode == 404) {
+        throw Exception('Сервер не найден. Проверьте URL в настройках.');
+      } else if (response.statusCode >= 500) {
+        throw Exception('Ошибка сервера: ${response.statusCode}');
+      } else {
+        throw Exception('Ошибка: ${response.statusCode}');
+      }
+    } on SocketException {
+      throw Exception('Нет подключения к серверу. Проверьте URL и подключение к сети.');
+    } on TimeoutException {
+      throw Exception('Таймаут подключения. Сервер не отвечает.');
+    } catch (e) {
+      throw Exception('Ошибка сети: $e');
+    }
+  }
+
+
 }
