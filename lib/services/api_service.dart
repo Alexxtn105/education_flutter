@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/answers.dart';
 import '../models/user.dart';
@@ -17,23 +19,64 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> startTest(User user, String questionnaire) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/start-test'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'user_name': user.name,
-        'department': user.department,
-        'questionnaire': questionnaire,
-      }),
-    );
+  Future<Map<String, dynamic>> startTest(User user, String questionnaireFullName) async {
+    try {
+      print('Starting test for: ${user.name}, questionnaire: $questionnaireFullName');
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to start test');
+      final response = await http.post(
+        Uri.parse('$baseUrl/start-test'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'user_name': user.name,
+          'department': user.department,
+          'questionnaire': questionnaireFullName,
+        }),
+      ).timeout(Duration(seconds: 10));
+
+      print('Start test response status: ${response.statusCode}');
+      print('Start test response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(utf8.decode(response.bodyBytes));
+        print('Test started successfully: $responseData');
+        return responseData;
+      } else if (response.statusCode == 404) {
+        throw Exception('Questionnaire not found: $questionnaireFullName');
+      } else {
+        throw Exception('Failed to start test: ${response.statusCode} - ${response.body}');
+      }
+    } on SocketException {
+      throw Exception('No Internet connection');
+    } on TimeoutException {
+      throw Exception('Request timeout');
+    } on FormatException catch (e) {
+      throw Exception('Invalid response format: $e');
+    } catch (e) {
+      print('Error in startTest: $e');
+      throw Exception('Failed to start test: $e');
     }
   }
+
+  // Future<Map<String, dynamic>> startTest(
+  //   User user,
+  //   String questionnaireFullName,
+  // ) async {
+  //   final response = await http.post(
+  //     Uri.parse('$baseUrl/start-test'),
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: json.encode({
+  //       'user_name': user.name,
+  //       'department': user.department,
+  //       'questionnaire': questionnaireFullName,
+  //     }),
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     return json.decode(response.body);
+  //   } else {
+  //     throw Exception('Failed to start test');
+  //   }
+  // }
 
   Future<Map<String, dynamic>> getNextQuestion(String sessionId) async {
     final response = await http.get(
@@ -51,10 +94,7 @@ class ApiService {
     final response = await http.post(
       Uri.parse('$baseUrl/answer'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'session_id': sessionId,
-        'answer': answer,
-      }),
+      body: json.encode({'session_id': sessionId, 'answer': answer}),
     );
 
     if (response.statusCode == 200) {
@@ -63,6 +103,7 @@ class ApiService {
       throw Exception('Failed to submit answer');
     }
   }
+
   // Future<Map<String, dynamic>> submitAnswer(String sessionId, int answer) async {
   //   final response = await http.post(
   //     Uri.parse('$baseUrl/answer'),
@@ -95,7 +136,9 @@ class ApiService {
         final data = json.decode(response.body);
         return data['correct_answer'];
       } else {
-        throw Exception('Failed to get hint: ${response.statusCode} ${response.body}');
+        throw Exception(
+          'Failed to get hint: ${response.statusCode} ${response.body}',
+        );
       }
     } catch (e) {
       print('Hint exception: $e');
@@ -146,9 +189,7 @@ class ApiService {
 
   // Новый метод для получения статистики
   Future<Map<String, dynamic>> getStatistics() async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/statistics'),
-    );
+    final response = await http.get(Uri.parse('$baseUrl/statistics'));
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -165,7 +206,9 @@ class ApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to reload questionnaires: ${response.statusCode}');
+      throw Exception(
+        'Failed to reload questionnaires: ${response.statusCode}',
+      );
     }
   }
 
@@ -178,6 +221,52 @@ class ApiService {
       return data.map((item) => item as Map<String, dynamic>).toList();
     } else {
       throw Exception('Failed to load questionnaires info');
+    }
+  }
+
+  Future<Map<String, List<Map<String, dynamic>>>>
+  getGroupedQuestionnaires() async {
+    print('Requesting: $baseUrl/grouped-questionnaires');
+    try {
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/grouped-questionnaires'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(Duration(seconds: 10));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(
+          utf8.decode(response.bodyBytes),
+        );
+        final Map<String, List<Map<String, dynamic>>> result = {};
+
+        data.forEach((group, questionnaires) {
+          if (questionnaires is List) {
+            result[group] = List<Map<String, dynamic>>.from(questionnaires);
+          }
+        });
+
+        return result;
+      } else {
+        print('Server returned status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception(
+          'Failed to load grouped questionnaires: ${response.statusCode}',
+        );
+      }
+    } on SocketException {
+      throw Exception('No Internet connection');
+    } on TimeoutException {
+      throw Exception('Request timeout');
+    } on FormatException {
+      throw Exception('Invalid response format');
+    } catch (e) {
+      print('Error in getGroupedQuestionnaires: $e');
+      throw Exception('Failed to load grouped questionnaires: $e');
     }
   }
 }

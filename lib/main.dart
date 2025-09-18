@@ -1,12 +1,25 @@
 import 'package:education/screens/incorrect_answers_screen.dart';
 import 'package:education/screens/results_history_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import 'theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+// Проверяем доступность сервера
+  try {
+    final response = await http.get(Uri.parse('http://localhost:8084/api/test'))
+        .timeout(Duration(seconds: 5));
+    if (response.statusCode == 200) {
+      print('Server is reachable');
+    }
+  } catch (e) {
+    print('Server is not reachable: $e');
+  }
+
   runApp(MyApp());
 }
 

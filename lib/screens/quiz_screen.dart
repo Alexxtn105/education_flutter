@@ -9,6 +9,7 @@ class QuizScreen extends StatefulWidget {
   final int totalQuestions;
   final User user; // Добавляем пользователя
   final String questionnaire; // Добавляем название вопросника
+  final String group;
   final DateTime startedAt; // Добавляем время начала
 
   const QuizScreen({super.key, 
@@ -16,6 +17,7 @@ class QuizScreen extends StatefulWidget {
     required this.totalQuestions,
     required this.user,
     required this.questionnaire,
+    required this.group,
     required this.startedAt,
   });
 
