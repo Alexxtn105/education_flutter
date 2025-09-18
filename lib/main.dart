@@ -1,3 +1,4 @@
+import 'package:education/screens/incorrect_answers_screen.dart';
 import 'package:education/screens/results_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
             home: LoginScreen(),
             routes: {
               '/results-history': (context) => ResultsHistoryScreen(),
+              '/incorrect-answers': (context) => IncorrectAnswersScreen(incorrectAnswers: []), // Базовый вариант
             },
           );
         },
