@@ -1,9 +1,13 @@
 # Система тестирования Education
 
 ## Команды
+Обновить зависимости из кэша
+```bash
+flutter pub get --offline
+```
 Обновить зависимости
 ```bash
-flutter pub get
+flutter pub get --offline
 ```
 Запуск Flutter приложения:
 ```bash

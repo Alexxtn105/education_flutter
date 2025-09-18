@@ -52,13 +52,13 @@ class _LoginScreenState extends State<LoginScreen> {
               Navigator.push(
                 context,
                   MaterialPageRoute(
-                    builder: (context) => SettingsScreen(
-                      apiService: widget.apiService,
-                      onSettingsChanged: () {
-                        // При изменении настроек можно обновить состояние
-                      },
+                    builder: (context) =>  ResultsHistoryScreen(),
+                      // apiService: widget.apiService,
+                      // onSettingsChanged: () {
+                      //   // При изменении настроек можно обновить состояние
+                      // },
                     ),
-                  ),
+                  // ),
                 // MaterialPageRoute(
                 //   builder: (context) => ResultsHistoryScreen(),
                 // ),
