@@ -11,6 +11,8 @@ class QuizScreen extends StatefulWidget {
   final String questionnaire; // Добавляем название вопросника
   final String group;
   final DateTime startedAt; // Добавляем время начала
+  final int maxQuestions; // Новое поле
+  final int originalTotal; // Новое поле
 
   const QuizScreen({super.key, 
     required this.sessionId,
@@ -19,6 +21,8 @@ class QuizScreen extends StatefulWidget {
     required this.questionnaire,
     required this.group,
     required this.startedAt,
+    required this.maxQuestions,
+    required this.originalTotal,
   });
 
   @override
@@ -26,6 +30,7 @@ class QuizScreen extends StatefulWidget {
 }
 
 class _QuizScreenState extends State<QuizScreen> {
+
   final ApiService _apiService = ApiService();
   Question? _currentQuestion;
   int _currentQuestionIndex = 0;

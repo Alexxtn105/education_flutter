@@ -19,19 +19,27 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> startTest(User user, String questionnaireFullName) async {
+  Future<Map<String, dynamic>> startTest(
+    User user,
+    String questionnaireFullName,
+    int maxQuestions,
+  ) async {
     try {
-      print('Starting test for: ${user.name}, questionnaire: $questionnaireFullName');
-
-      final response = await http.post(
-        Uri.parse('$baseUrl/start-test'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'user_name': user.name,
-          'department': user.department,
-          'questionnaire': questionnaireFullName,
-        }),
-      ).timeout(Duration(seconds: 10));
+      print(
+        'Starting test for: ${user.name}, questionnaire: $questionnaireFullName, max questions: $maxQuestions',
+      );
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/start-test'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              'user_name': user.name,
+              'department': user.department,
+              'questionnaire': questionnaireFullName,
+              'max_questions': maxQuestions,
+            }),
+          )
+          .timeout(Duration(seconds: 10));
 
       print('Start test response status: ${response.statusCode}');
       print('Start test response body: ${response.body}');
@@ -43,7 +51,9 @@ class ApiService {
       } else if (response.statusCode == 404) {
         throw Exception('Questionnaire not found: $questionnaireFullName');
       } else {
-        throw Exception('Failed to start test: ${response.statusCode} - ${response.body}');
+        throw Exception(
+          'Failed to start test: ${response.statusCode} - ${response.body}',
+        );
       }
     } on SocketException {
       throw Exception('No Internet connection');

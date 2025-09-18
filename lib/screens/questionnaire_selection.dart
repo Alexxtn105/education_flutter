@@ -63,7 +63,72 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
     await _loadGroupedQuestionnaires();
   }
 
-  void _navigateToQuizScreen(String group, String questionnaire) async {
+  Future<void> _showQuestionCountDialog(
+    String group,
+    String questionnaire,
+    int totalQuestions,
+  ) async {
+    final TextEditingController controller = TextEditingController(
+      text: totalQuestions.toString(),
+    );
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Количество вопросов'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Вопросник: $questionnaire'),
+              SizedBox(height: 8),
+              Text('Всего вопросов: $totalQuestions'),
+              SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                decoration: InputDecoration(
+                  labelText: 'Количество вопросов',
+                  hintText: 'Введите число (0 - все вопросы)',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Отмена'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final input = controller.text.trim();
+                final maxQuestions = int.tryParse(input) ?? totalQuestions;
+
+                if (maxQuestions < 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Количество вопросов не может быть отрицательным',
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
+                Navigator.pop(context);
+                _navigateToQuizScreen(group, questionnaire, maxQuestions);
+              },
+              child: Text('Начать тест'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _navigateToQuizScreen(String group, String questionnaire, int maxQuestions) async {
     try {
       var fullName = '$group/$questionnaire';
       print('Starting test: $fullName');
@@ -71,10 +136,12 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
       var response = await _apiService.startTest(
         widget.user,
         fullName,
+        maxQuestions,
       );
 
       // Проверяем наличие необходимых полей в ответе
-      if (response['session_id'] == null || response['total_questions'] == null) {
+      if (response['session_id'] == null ||
+          response['total_questions'] == null) {
         throw Exception('Invalid response from server');
       }
 
@@ -88,6 +155,8 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
             questionnaire: questionnaire,
             group: group,
             startedAt: DateTime.now(),
+            maxQuestions: response['max_questions'],
+            originalTotal: response['original_total'],
           ),
         ),
       ).then((value) {
@@ -98,7 +167,9 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Ошибка начала теста: ${e.toString().replaceFirst('Exception: ', '')}'),
+          content: Text(
+            'Ошибка начала теста: ${e.toString().replaceFirst('Exception: ', '')}',
+          ),
           duration: Duration(seconds: 5),
           backgroundColor: Colors.red,
         ),
@@ -195,31 +266,55 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
   ) {
     return ExpansionTile(
       leading: Icon(Icons.folder),
-      title: Text(
-        groupName,
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
-      subtitle: Text('${questionnaires.length} вопросников'),
+      title: Text(groupName),
       children: questionnaires.map((questionnaire) {
-        return Card(
-          margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-          child: ListTile(
-            leading: Icon(Icons.quiz),
-            title: Text(
-              questionnaire['name'] ?? 'Без названия',
-              style: TextStyle(fontSize: 16),
-            ),
-            subtitle: Text(
-              'Вопросов: ${questionnaire['question_count'] ?? 0}',
-              style: TextStyle(fontSize: 14),
-            ),
-            onTap: () =>
-                _navigateToQuizScreen(groupName, questionnaire['name']),
+        final questionCount = questionnaire['question_count'] ?? 0;
+
+        return ListTile(
+          leading: Icon(Icons.quiz),
+          title: Text(questionnaire['name']),
+          subtitle: Text('Вопросов: $questionCount'),
+          onTap: () => _showQuestionCountDialog(
+            groupName,
+            questionnaire['name'],
+            questionCount,
           ),
         );
       }).toList(),
     );
   }
+
+  // Widget _buildGroupExpansion(
+  //   String groupName,
+  //   List<Map<String, dynamic>> questionnaires,
+  // ) {
+  //   return ExpansionTile(
+  //     leading: Icon(Icons.folder),
+  //     title: Text(
+  //       groupName,
+  //       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //     ),
+  //     subtitle: Text('${questionnaires.length} вопросников'),
+  //     children: questionnaires.map((questionnaire) {
+  //       return Card(
+  //         margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+  //         child: ListTile(
+  //           leading: Icon(Icons.quiz),
+  //           title: Text(
+  //             questionnaire['name'] ?? 'Без названия',
+  //             style: TextStyle(fontSize: 16),
+  //           ),
+  //           subtitle: Text(
+  //             'Вопросов: ${questionnaire['question_count'] ?? 0}',
+  //             style: TextStyle(fontSize: 14),
+  //           ),
+  //           onTap: () =>
+  //               _navigateToQuizScreen(groupName, questionnaire['name']),
+  //         ),
+  //       );
+  //     }).toList(),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
