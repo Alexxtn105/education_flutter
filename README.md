@@ -84,6 +84,8 @@ flutter run --hot
 
     ```text
     Windows (desktop) • windows • windows-x64 • Microsoft Windows [Version 10.0.19045.3803]
+    Chrome (web)      • chrome  • web-javascript • Google Chrome 140.0.7339.128
+    Edge (web)        • edge    • web-javascript • Microsoft Edge 140.0.3485.66
     ```
 2. Соберите исполняемый файл
    Для отладочной сборки (debug):
