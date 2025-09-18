@@ -11,7 +11,7 @@ class ResultsScreen extends StatelessWidget {
   final DateTime startedAt;
   final List<IncorrectAnswer> incorrectAnswers; // Добавляем неправильные ответы
 
-  ResultsScreen({
+  const ResultsScreen({super.key, 
     required this.correctAnswers,
     required this.totalQuestions,
     required this.user,
@@ -193,10 +193,10 @@ class ResultsScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.popUntil(context, (route) => route.isFirst);
                     },
-                    child: Text('Завершить'),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 15),
                     ),
+                    child: Text('Завершить'),
                   ),
                 ),
                 SizedBox(width: 10),
@@ -210,12 +210,12 @@ class ResultsScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    child: Text('История результатов'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey[300],
                       foregroundColor: Colors.black,
                       padding: EdgeInsets.symmetric(vertical: 15),
                     ),
+                    child: Text('История результатов'),
                   ),
                 ),
               ],

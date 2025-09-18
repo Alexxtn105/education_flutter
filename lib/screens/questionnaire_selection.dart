@@ -6,7 +6,7 @@ import 'quiz_screen.dart';
 class QuestionnaireSelection extends StatefulWidget {
   final User user;
 
-  QuestionnaireSelection({required this.user});
+  const QuestionnaireSelection({super.key, required this.user});
 
   @override
   _QuestionnaireSelectionState createState() => _QuestionnaireSelectionState();

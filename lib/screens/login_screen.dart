@@ -6,6 +6,8 @@ import 'results_history_screen.dart';
 import '../theme_provider.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -95,10 +97,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   }
                 },
-                child: Text('Продолжить'),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
+                child: Text('Продолжить'),
               ),
               SizedBox(height: 20),
               // Дополнительная кнопка для перехода к истории результатов

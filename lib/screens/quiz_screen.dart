@@ -11,7 +11,7 @@ class QuizScreen extends StatefulWidget {
   final String questionnaire; // Добавляем название вопросника
   final DateTime startedAt; // Добавляем время начала
 
-  QuizScreen({
+  const QuizScreen({super.key, 
     required this.sessionId,
     required this.totalQuestions,
     required this.user,
@@ -30,7 +30,7 @@ class _QuizScreenState extends State<QuizScreen> {
   int _correctAnswers = 0;
   int _wrongAnswers = 0;
   bool _isLoading = true;
-  bool _showHintDialog = false;
+  final bool _showHintDialog = false;
 
   @override
   void initState() {
@@ -139,7 +139,7 @@ class _QuizScreenState extends State<QuizScreen> {
             children: [
               Text('Правильный ответ: ${correctAnswer + 1}'),
               SizedBox(height: 10),
-              Text('$correctAnswerText', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(correctAnswerText, style: TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
           actions: [

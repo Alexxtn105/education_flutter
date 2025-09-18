@@ -62,7 +62,7 @@ class TestResult {
   }
 
   String get scoreText {
-    return '${correctAnswers}/$totalQuestions (${scorePercentage.toStringAsFixed(1)}%)';
+    return '$correctAnswers/$totalQuestions (${scorePercentage.toStringAsFixed(1)}%)';
   }
 
   String get durationText {

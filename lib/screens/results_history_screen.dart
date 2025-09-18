@@ -5,6 +5,8 @@ import '../models/test_result.dart';
 import '../theme_provider.dart';
 
 class ResultsHistoryScreen extends StatefulWidget {
+  const ResultsHistoryScreen({super.key});
+
   @override
   _ResultsHistoryScreenState createState() => _ResultsHistoryScreenState();
 }
