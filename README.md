@@ -25,6 +25,11 @@ flutter run -d web-server --web-port=8086
 flutter build web --release
 ```
 
+Билд для оффлайн (для flutter версии до 3.27 включительно)
+```bash
+flutter build web --web-renderer html --release
+```
+
 ## Если нужна поддержка Windows как целевой платформы:
 
 ```bash
