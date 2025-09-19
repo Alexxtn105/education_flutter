@@ -30,6 +30,33 @@ flutter build web --release
 flutter build web --web-renderer html --release
 ```
 
+
+Конфиг для nginx:
+```
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    sendfile        on;
+    keepalive_timeout  65;
+
+    server {
+        listen       8085;
+        server_name  localhost;
+
+        location / {
+            root   D:/sites/education;
+            index  index.html index.htm;
+        }
+    }
+}
+```
 ## Если нужна поддержка Windows как целевой платформы:
 
 ```bash
