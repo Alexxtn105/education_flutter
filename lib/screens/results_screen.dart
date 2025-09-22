@@ -46,6 +46,9 @@ class ResultsScreen extends StatelessWidget {
             },
             tooltip: themeProvider.isDarkMode ? 'Светлая тема' : 'Темная тема',
           ),
+
+
+
         ],
       ),
       body: Padding(

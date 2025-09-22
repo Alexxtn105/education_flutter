@@ -5,7 +5,6 @@ import '../services/api_service.dart';
 import '../models/question.dart';
 import '../models/user.dart';
 import '../theme_provider.dart';
-//import '../theme_provider.dart';
 
 class QuizScreen extends StatefulWidget {
   final String sessionId;
@@ -16,6 +15,7 @@ class QuizScreen extends StatefulWidget {
   final DateTime startedAt; // Добавляем время начала
   final int maxQuestions; // Новое поле
   final int originalTotal; // Новое поле
+  //final List<IncorrectAnswer> incorrectAnswers;
 
   const QuizScreen({super.key, 
     required this.sessionId,
@@ -26,6 +26,7 @@ class QuizScreen extends StatefulWidget {
     required this.startedAt,
     required this.maxQuestions,
     required this.originalTotal,
+    //this.incorrectAnswers = const [],
   });
 
   @override
@@ -40,7 +41,7 @@ class _QuizScreenState extends State<QuizScreen> {
   int _correctAnswers = 0;
   int _wrongAnswers = 0;
   bool _isLoading = true;
-  final bool _showHintDialog = false;
+  //final bool _showHintDialog = false;
 
   @override
   void initState() {
@@ -151,6 +152,20 @@ class _QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         title: Text('Тестирование - ${widget.questionnaire}'),
         actions: [
+          // TODO - add incorrect answers icon
+          // IconButton(
+          //   icon: Icon(Icons.warning),
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => IncorrectAnswersScreen(
+          //           incorrectAnswers: incorrectAnswers,
+          //         ),
+          //       ),
+          //     );
+          //   },
+          // ),
           IconButton(
             icon: Icon(Icons.help),
             onPressed: _showHint,
