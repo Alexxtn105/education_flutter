@@ -3,7 +3,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppConfig {
-  static String baseUrl = 'http://localhost:8087/api';
+  static String baseUrl = 'http://localhost:5087/api';
 
   // Метод для инициализации конфигурации
   static Future<void> initialize() async {

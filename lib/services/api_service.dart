@@ -8,7 +8,7 @@ import '../models/user.dart';
 import '../models/test_result.dart';
 
 class ApiService {
-  static String _baseUrl = 'http://localhost:8087/api';
+  static String _baseUrl = 'http://localhost:5087/api';
 
   // Геттер для текущего URL
   String get baseUrl => _baseUrl;
