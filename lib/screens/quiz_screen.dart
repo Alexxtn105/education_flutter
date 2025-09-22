@@ -1,8 +1,11 @@
 import 'package:education/screens/results_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../models/question.dart';
 import '../models/user.dart';
+import '../theme_provider.dart';
+//import '../theme_provider.dart';
 
 class QuizScreen extends StatefulWidget {
   final String sessionId;
@@ -94,37 +97,6 @@ class _QuizScreenState extends State<QuizScreen> {
       );
     }
   }
-  // Future<void> _submitAnswer(int answerIndex) async {
-  //   try {
-  //     var response = await _apiService.submitAnswer(widget.sessionId, answerIndex);
-  //
-  //     if (response['completed']) {
-  //       // Тест завершен
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => ResultsScreen(
-  //             correctAnswers: _correctAnswers + (response['correct'] ? 1 : 0),
-  //             totalQuestions: widget.totalQuestions,
-  //             user: widget.user, // Передаем пользователя
-  //             questionnaire: widget.questionnaire, // Передаем название теста
-  //             startedAt: widget.startedAt, // Передаем время начала
-  //           ),
-  //         ),
-  //       );
-  //     } else {
-  //       setState(() {
-  //         _correctAnswers = response['correct'] ? _correctAnswers + 1 : _correctAnswers;
-  //         _wrongAnswers = response['correct'] ? _wrongAnswers : _wrongAnswers + 1;
-  //       });
-  //       _loadNextQuestion();
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Ошибка отправки ответа: $e')),
-  //     );
-  //   }
-  // }
 
   Future<void> _showHint() async {
     try {
@@ -166,6 +138,8 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(title: Text('Тестирование')),
@@ -180,6 +154,14 @@ class _QuizScreenState extends State<QuizScreen> {
           IconButton(
             icon: Icon(Icons.help),
             onPressed: _showHint,
+          ),
+          // Кнопка смены темы
+          IconButton(
+            icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+            tooltip: themeProvider.isDarkMode ? 'Светлая тема' : 'Темная тема',
           ),
         ],
       ),

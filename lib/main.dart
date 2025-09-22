@@ -17,8 +17,7 @@ void main() async {
 
   // Проверяем доступность сервера
   try {
-    print('!!!!!!!!!!!!!!!!!!');
-    print(AppConfig.baseUrl);
+    print('Base URL: ${AppConfig.baseUrl}');
 
     final response = await http
         .get(Uri.parse('${AppConfig.baseUrl}/test'))
@@ -35,7 +34,8 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final ApiService apiService = ApiService();
-  //const MyApp({super.key});
+
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
-            title: 'Quiz App',
+            title: 'Education',
             theme: themeProvider.themeData,
             //home: LoginScreen(),
             home: LoginScreen(apiService: apiService), // Передаем apiService
@@ -66,52 +66,4 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// import 'package:education/screens/results_history_screen.dart';
-// import 'package:flutter/material.dart';
-// import 'screens/login_screen.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-//
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   final prefs = await SharedPreferences.getInstance();
-//   final isDarkMode = prefs.getBool('isDarkMode') ?? false;
-//
-//   runApp(MyApp(isDarkMode: isDarkMode));
-// }
-//
-// class MyApp extends StatelessWidget {
-//   final bool isDarkMode;
-//
-//   const MyApp({super.key, required this.isDarkMode});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Quiz App',
-//       theme: isDarkMode ? _darkTheme : _lightTheme,
-//       home: LoginScreen(),
-//       routes: {
-//         '/results-history': (context) => ResultsHistoryScreen(),
-//       },
-//     );
-//   }
-//
-//   static final ThemeData _lightTheme = ThemeData(
-//     primarySwatch: Colors.blue,
-//     visualDensity: VisualDensity.adaptivePlatformDensity,
-//     brightness: Brightness.light,
-//   );
-//
-//   static final ThemeData _darkTheme = ThemeData(
-//     primarySwatch: Colors.blue,
-//     visualDensity: VisualDensity.adaptivePlatformDensity,
-//     brightness: Brightness.dark,
-//     // scaffoldBackgroundColor: Colors.grey[900],
-//     // appBarTheme: AppBarTheme(
-//     //   backgroundColor: Colors.grey[800],
-//     // ),
-//     // cardTheme: CardThemeData(
-//     //   color: Colors.grey[800],
-//     // ),
-//   );
-// }
+

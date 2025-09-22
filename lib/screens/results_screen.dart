@@ -1,7 +1,9 @@
 // results_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/answers.dart';
 import '../models/user.dart';
+import '../theme_provider.dart';
 import 'results_history_screen.dart';
 import 'incorrect_answers_screen.dart'; // Добавляем импорт
 
@@ -13,7 +15,8 @@ class ResultsScreen extends StatelessWidget {
   final DateTime startedAt;
   final List<IncorrectAnswer> incorrectAnswers;
 
-  const ResultsScreen({super.key,
+  const ResultsScreen({
+    super.key,
     required this.correctAnswers,
     required this.totalQuestions,
     required this.user,
@@ -23,12 +26,28 @@ class ResultsScreen extends StatelessWidget {
   });
 
   double get score => (correctAnswers / totalQuestions) * 100;
+
   Duration get duration => DateTime.now().difference(startedAt);
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      appBar: AppBar(title: Text('Результаты тестирования')),
+      appBar: AppBar(
+        title: Text('Результаты тестирования'),
+        actions: [
+          // Кнопка смены темы
+          IconButton(
+            icon: Icon(
+                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+            tooltip: themeProvider.isDarkMode ? 'Светлая тема' : 'Темная тема',
+          ),
+        ],
+      ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
@@ -41,13 +60,17 @@ class ResultsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Пользователь: ${user.name}', style: TextStyle(fontSize: 18)),
+                    Text('Пользователь: ${user.name}',
+                        style: TextStyle(fontSize: 18)),
                     SizedBox(height: 8),
-                    Text('Подразделение: ${user.department}', style: TextStyle(fontSize: 16)),
+                    Text('Подразделение: ${user.department}',
+                        style: TextStyle(fontSize: 16)),
                     SizedBox(height: 8),
-                    Text('Тест: $questionnaire', style: TextStyle(fontSize: 16)),
+                    Text('Тест: $questionnaire',
+                        style: TextStyle(fontSize: 16)),
                     SizedBox(height: 8),
-                    Text('Длительность: ${duration.inMinutes} мин ${duration.inSeconds % 60} сек',
+                    Text(
+                        'Длительность: ${duration.inMinutes} мин ${duration.inSeconds % 60} сек',
                         style: TextStyle(fontSize: 16)),
                   ],
                 ),

@@ -1,7 +1,9 @@
 import 'package:education/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../models/user.dart';
+import '../theme_provider.dart';
 import 'quiz_screen.dart';
 
 class QuestionnaireSelection extends StatefulWidget {
@@ -264,6 +266,10 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
 
   @override
   Widget build(BuildContext context) {
+
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Выбор вопросника'),
@@ -287,6 +293,14 @@ class _QuestionnaireSelectionState extends State<QuestionnaireSelection> {
             icon: Icon(Icons.refresh),
             onPressed: _refreshQuestionnaires,
             tooltip: 'Обновить список',
+          ),
+          // Кнопка смены темы
+          IconButton(
+            icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+            tooltip: themeProvider.isDarkMode ? 'Светлая тема' : 'Темная тема',
           ),
         ],
       ),

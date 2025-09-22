@@ -1,6 +1,8 @@
 // incorrect_answers_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/answers.dart';
+import '../theme_provider.dart';
 
 class IncorrectAnswersScreen extends StatelessWidget {
   final List<IncorrectAnswer> incorrectAnswers;
@@ -9,9 +11,20 @@ class IncorrectAnswersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Неправильные ответы (${incorrectAnswers.length})'),
+        actions: [
+          // Кнопка смены темы
+          IconButton(
+            icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+            tooltip: themeProvider.isDarkMode ? 'Светлая тема' : 'Темная тема',
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: incorrectAnswers.length,
